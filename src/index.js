@@ -4,6 +4,7 @@ const { startStandaloneServer } = require("@apollo/server/standalone");
 const { faker } = require("@faker-js/faker");
 
 const users = [];
+const profiles = [];
 
 const typeDefs = buildSchema(`
 
@@ -18,6 +19,12 @@ const typeDefs = buildSchema(`
         vip: Boolean!
         createdAt: String!
         createdDate: String!
+        profile: String!
+    }
+
+    type Profile {
+      id: ID!
+      name: String!
     }
 
     type Query {
@@ -34,6 +41,10 @@ const resolvers = {
     },
     full_name(parent) {
       return `${parent.name} ${parent.second_name}`;
+    },
+    profile(parent) {
+      const profile = profiles.find((el) => el.id == parent.profile);
+      return profile.name;
     },
   },
 
@@ -70,7 +81,18 @@ startStandaloneServer(server).then(({ url }) => {
       payment: faker.commerce.price(),
       vip: false,
       createdAt: new Date().toDateString(),
+      profile: 2,
     });
   }
+
+  profiles[0] = {
+    id: 1,
+    name: "Teacher",
+  };
+
+  profiles[1] = {
+    id: 2,
+    name: "Student",
+  };
   console.log(`🚀 Server ready at ${url}`);
 });
