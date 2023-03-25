@@ -1,6 +1,9 @@
 const { ApolloServer, gql } = require("@apollo/server");
 const { buildSchema } = require("graphql");
 const { startStandaloneServer } = require("@apollo/server/standalone");
+const { faker } = require("@faker-js/faker");
+
+const users = []
 
 const typeDefs = buildSchema(`
 
@@ -10,7 +13,7 @@ const typeDefs = buildSchema(`
         second_name: String!
         full_name: String!
         email: String!
-        birth: Int!
+        birth: String!
         payment: Float!
         vip: Boolean!
         createdAt: String!
@@ -20,6 +23,8 @@ const typeDefs = buildSchema(`
     type Query {
         hello: String!
         userByName: User!
+        arrayOfNumbers: [Int!]!
+        users: [User!]!
     }
 `);
 
@@ -49,10 +54,32 @@ const resolvers = {
         createdAt: new Date().toDateString(),
       };
     },
+
+    arrayOfNumbers() {
+      return [1, 2, 3];
+    },
+
+    users() {
+      return users;
+    },
   },
 };
+
+
 const server = new ApolloServer({ typeDefs, resolvers });
 
 startStandaloneServer(server).then(({ url }) => {
+  for (let index = 0; index < 10; index++) {
+    users.push({
+      id: faker.random.numeric(),
+      name: faker.name.firstName(),
+      second_name: faker.name.firstName(),
+      email: faker.internet.email(),
+      birth: faker.date.recent().toDateString(),
+      payment: faker.commerce.price(),
+      vip: false,
+      createdAt: new Date().toDateString(),
+    });
+  }
   console.log(`🚀 Server ready at ${url}`);
 });
