@@ -3,7 +3,7 @@ const { buildSchema } = require("graphql");
 const { startStandaloneServer } = require("@apollo/server/standalone");
 const { faker } = require("@faker-js/faker");
 
-const users = []
+const users = [];
 
 const typeDefs = buildSchema(`
 
@@ -21,10 +21,9 @@ const typeDefs = buildSchema(`
     }
 
     type Query {
-        hello: String!
-        userByName: User!
-        arrayOfNumbers: [Int!]!
+        userByName(name: String!): User!
         users: [User!]!
+        userById(id: ID!): User!
     }
 `);
 
@@ -39,32 +38,24 @@ const resolvers = {
   },
 
   Query: {
-    hello() {
-      return new Date().toDateString();
-    },
-    userByName(parent, args, contextValue, info) {
-      return {
-        id: 1,
-        name: "alberto",
-        second_name: "paiva",
-        email: "email@email.com",
-        birth: "22/10/2022",
-        payment: 5000.0,
-        vip: true,
-        createdAt: new Date().toDateString(),
-      };
-    },
-
-    arrayOfNumbers() {
-      return [1, 2, 3];
+    userByName(_, args) {
+      const { name } = args;
+      return users.find((el) => el.name === name);
     },
 
     users() {
       return users;
     },
+
+    userById(_, args) {
+      const { id } = args;
+      const user = users.find((el) => {
+        return el.id == String(id);
+      });
+      return user;
+    },
   },
 };
-
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
